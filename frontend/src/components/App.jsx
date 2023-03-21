@@ -4,18 +4,18 @@ import {
   Routes,
   Route,
   Navigate,
-  useLocation,
+  Link,
 } from 'react-router-dom';
+import { Button, Container, Navbar } from 'react-bootstrap';
 import NotFoundPage from './NotFoundPage.jsx';
 import MainPage from './MainPage.jsx';
 import LoginPage from './LoginPage.jsx';
-import Header from './Header.jsx';
 import useAuth from '../hooks/index.jsx';
 import AuthContext from '../contexts/index.jsx';
-import routes from '../routes.js';
 
 const AuthProvider = ({ children }) => {
-  const [loggedIn, setLoggedIn] = useState(false);
+  const initialState = Boolean(localStorage.getItem('userData'));
+  const [loggedIn, setLoggedIn] = useState(initialState);
 
   const logIn = () => setLoggedIn(true);
   const logOut = () => {
@@ -34,10 +34,19 @@ const AuthProvider = ({ children }) => {
 
 const PrivateRoute = ({ children }) => {
   const auth = useAuth();
-  const location = useLocation();
 
   return (
-    auth.loggedIn ? children : <Navigate to={routes.loginPagePath()} state={{ from: location }} />
+    auth.loggedIn ? children : <Navigate to="/login" />
+  );
+};
+
+const AuthButton = () => {
+  const auth = useAuth();
+
+  return (
+    auth.loggedIn
+      ? <Button onClick={auth.logOut}>Выход</Button>
+      : null
   );
 };
 
@@ -47,7 +56,14 @@ const App = () => {
   return (
     <AuthProvider>
       <Router>
-        <Header />
+        <Navbar className="shadow-sm" bg="white" expand="lg" variant="white">
+          <Container>
+            <Navbar.Brand as={Link} to="/">
+              Hexlet Chat
+            </Navbar.Brand>
+            <AuthButton />
+          </Container>
+        </Navbar>
         <Routes>
           <Route path="*" element={<NotFoundPage />} />
           <Route path="/login" element={<LoginPage />} />
