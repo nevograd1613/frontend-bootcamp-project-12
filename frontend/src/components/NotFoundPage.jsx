@@ -11,7 +11,7 @@ const NotFoundPage = () => {
         <img src={notFoundImg} alt="Страница не найдена" className="img-fluid h-25" />
         <h1 className="h4 text-muted">Страница не найдена</h1>
         <p className="text-muted">
-          Но вы можете перейти
+          Но вы можете перейти&nbsp;
           <Link to="/">{mainPage}</Link>
         </p>
       </div>
