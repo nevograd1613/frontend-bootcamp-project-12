@@ -5,13 +5,17 @@ import {
   Container,
   Row,
   Col,
+  Nav,
+  Dropdown,
+  ButtonGroup,
   Button,
 } from 'react-bootstrap';
-import cn from 'classnames';
 import { io } from 'socket.io-client';
 import routes from '../routes.js';
+import Modals from './modals/Modals.jsx';
 import { actions as channelsActions, selectors as channelsSelectors } from '../slices/chanelsSlice.js';
 import { actions as messagesActions, selectors as messagesSelectors } from '../slices/messagesSlice.js';
+import { actions as modalsActions } from '../slices/modalsSlice.js';
 
 const getAuthHeader = () => {
   const userId = JSON.parse(localStorage.getItem('userId'));
@@ -29,6 +33,7 @@ const MainPage = () => {
   const dispatch = useDispatch();
   const [activeId, setActiveId] = useState(null);
   const [value, setValue] = useState('');
+  const [initialId, setInitialId] = useState('');
   const inpRef = useRef();
   useEffect(() => {
     inpRef.current.focus();
@@ -47,6 +52,7 @@ const MainPage = () => {
         dispatch(channelsActions.addChannels(data.channels));
         dispatch(messagesActions.addMessages(data.messages));
         setActiveId(data.currentChannelId);
+        setInitialId(data.currentChannelId);
       } catch (e) {
         console.log(e);
       }
@@ -68,6 +74,9 @@ const MainPage = () => {
       .filter(({ channelId }) => channelId === activeId);
     return { messages: activeMessages };
   });
+  const addChannel = () => dispatch(modalsActions.openModal({ type: 'adding' }));
+  const renameChannel = ({ id, name }) => () => dispatch(modalsActions.openModal({ type: 'renaming', target: { id, name } }));
+  const removeChannel = ({ id }) => () => dispatch(modalsActions.openModal({ type: 'removing', target: { id } }));
 
   const addNewMessage = (e) => {
     e.preventDefault();
@@ -80,10 +89,10 @@ const MainPage = () => {
     });
     setValue('');
   };
-  console.log(value);
 
   return (
     <Container className="h-100 my-4 overflow-hidden rounded shadow">
+      <Modals setActiveId={setActiveId} initialId={initialId} />
       <Row className="h-100 bg-white flex-md-row">
         <Col className="col-4 col-md-2 border-end px-0 bg-light flex-column h-100 d-flex">
           <div className="d-flex mt-1 justify-content-between mb-2 ps-4 pe-2 p-4">
@@ -91,6 +100,7 @@ const MainPage = () => {
             <Button
               variant=""
               className="p-0 text-primary btn-group-vertical"
+              onClick={addChannel}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -106,23 +116,56 @@ const MainPage = () => {
             </Button>
           </div>
           <ul id="channels-box" className="nav flex-column nav-pills nav-fill px-2 mb-3 overflow-auto h-100 d-block">
-            {channels && channels.map((el) => {
-              const chanelButtonClassName = cn('w-100 rounded-0 text-start btn', { 'btn-secondary': activeId === el.id });
-              return (
-                <li className="nav-item w-100" key={el.id}>
-                  <button
-                    type="button"
-                    className={chanelButtonClassName}
-                    onClick={() => {
-                      setActiveId(el.id);
-                    }}
-                  >
-                    <span className="me-1">#</span>
-                    {el.name}
-                  </button>
-                </li>
-              );
-            })}
+            {channels.map((el) => (
+              <Nav.Item as="li" key={el.id} className="w-100">
+                {el.removable ? (
+                  <Dropdown as={ButtonGroup} className="d-flex">
+                    <Button
+                      type="button"
+                      className="border-0 w-100 rounded-0 text-start text-truncate"
+                      variant={el.id === activeId ? 'secondary' : ''}
+                      onClick={() => {
+                        setActiveId(el.id);
+                      }}
+                    >
+                      <span className="p-1">#</span>
+                      &nbsp;
+                      {el.name}
+                    </Button>
+                    <Dropdown.Toggle
+                      split
+                      variant={el.id === activeId ? 'secondary' : ''}
+                      id="dropdown-split-basic"
+                    >
+                      <span className="visually-hidden">Управление каналом</span>
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                      <Dropdown.Item onClick={removeChannel(el)}>
+                        Удалить
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={renameChannel(el)}>
+                        Переименовать
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
+                )
+                  : (
+                    <Button
+                      type="button"
+                      variant={el.id === activeId ? 'secondary' : ''}
+                      className="border-0 w-100 rounded-0 text-start"
+                      onClick={() => {
+                        setActiveId(el.id);
+                      }}
+                      key={el.id}
+                    >
+                      <span className="p-1">#</span>
+                      &nbsp;
+                      {el.name}
+                    </Button>
+                  )}
+              </Nav.Item>
+            ))}
           </ul>
         </Col>
         <Col className="p-0 h-100">
