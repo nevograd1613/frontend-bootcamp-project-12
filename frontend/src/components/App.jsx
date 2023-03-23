@@ -10,6 +10,7 @@ import { Button, Container, Navbar } from 'react-bootstrap';
 import NotFoundPage from './NotFoundPage.jsx';
 import MainPage from './MainPage.jsx';
 import LoginPage from './LoginPage.jsx';
+import Signup from './Signup.jsx';
 import useAuth from '../hooks/index.jsx';
 import AuthContext from '../contexts/index.jsx';
 
@@ -42,6 +43,7 @@ const PrivateRoute = ({ children }) => {
 
 const AuthButton = () => {
   const auth = useAuth();
+  console.log(auth.loggedIn);
 
   return (
     auth.loggedIn
@@ -67,6 +69,7 @@ const App = () => {
         <Routes>
           <Route path="*" element={<NotFoundPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<Signup />} />
           <Route
             path="/"
             element={(

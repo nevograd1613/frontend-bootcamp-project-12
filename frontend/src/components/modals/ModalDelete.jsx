@@ -9,7 +9,6 @@ const socket = io();
 const Remove = ({
   close, target, setActiveId, initialId,
 }) => {
-  console.log(initialId);
   const dispatch = useDispatch();
   const [submitDisabled, setSubmitDisabled] = useState(false);
 

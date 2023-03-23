@@ -6,22 +6,23 @@ import { Button, Form } from 'react-bootstrap';
 import axios from 'axios';
 import useAuth from '../hooks/index.jsx';
 import routes from '../routes.js';
-import Entry from '../assets/Entry.jpeg';
+import Entry from '../assets/signup.jpg';
 
 const SignupSchema = Yup.object().shape({
   username: Yup.string()
     .trim()
-    .min(2, 'Too Short!')
+    .min(3, 'Too Short!')
     .max(20, 'Too Long!')
     .required('Required'),
   password: Yup.string()
-    .trim()
-    .min(6, 'Too Short!')
-    .max(50, 'Too Long!')
-    .required('Required'),
+    .required('registration.required')
+    .min(6, 'registration.passwordMin'),
+  passwordConfirm: Yup.string()
+    .oneOf([Yup.ref('password'), null], 'error')
+    .required('registration.required'),
 });
 
-const LoginPage = () => {
+const Signup = () => {
   const auth = useAuth();
   const [authFailed, setAuthFailed] = useState(false);
   const inputRef = useRef();
@@ -34,20 +35,21 @@ const LoginPage = () => {
     initialValues: {
       username: '',
       password: '',
+      passwordConfirm: '',
     },
     SignupSchema,
     onSubmit: async (values) => {
       setAuthFailed(false);
 
       try {
-        const res = await axios.post(routes.loginPath(), values);
+        const res = await axios.post(routes.signUpPath(), values);
         localStorage.setItem('userId', JSON.stringify(res.data));
         auth.logIn();
         const { from } = location.state || { from: { pathname: '/' } };
         navigate(from);
       } catch (err) {
         formik.setSubmitting(false);
-        if (err.isAxiosError && err.response.status === 401) {
+        if (err.isAxiosError && err.response.status === 409) {
           setAuthFailed(true);
           inputRef.current.select();
           return;
@@ -66,13 +68,13 @@ const LoginPage = () => {
                 <img src={Entry} className="rounded-circle" alt="Войти" />
               </div>
               <Form onSubmit={formik.handleSubmit} className="col-12 col-md-6 mt-3 mt-mb-0">
-                <h1 className="text-center mb-4">Вход</h1>
+                <h1 className="text-center mb-4">Регистрация</h1>
                 <fieldset disabled={formik.isSubmitting}>
                   <Form.Group>
                     <Form.Control
                       onChange={formik.handleChange}
                       value={formik.values.username}
-                      placeholder="Ваш ник"
+                      placeholder="Имя пользователя"
                       className={authFailed ? 'mb-3 form-control is-invalid' : 'mb-3 form-control'}
                       name="username"
                       id="username"
@@ -97,15 +99,23 @@ const LoginPage = () => {
                     />
                     <Form.Control.Feedback type="invalid">the username or password is incorrect</Form.Control.Feedback>
                   </Form.Group>
-                  <Button type="submit" variant="outline-primary" className="w-100 btn btn-outline-primary">Submit</Button>
+                  <Form.Group>
+                    <Form.Control
+                      type="password"
+                      onChange={formik.handleChange}
+                      value={formik.values.passwordConfirm}
+                      placeholder="Подтвердите пароль"
+                      className={authFailed ? 'mb-3 form-control is-invalid' : 'mb-3 form-control'}
+                      name="passwordConfirm"
+                      id="passwordConfirm"
+                      isInvalid={authFailed}
+                      required
+                    />
+                    <Form.Control.Feedback type="invalid">the username or password is incorrect</Form.Control.Feedback>
+                  </Form.Group>
+                  <Button type="submit" variant="outline-primary" className="w-100 btn btn-outline-primary">Зарегистрироваться</Button>
                 </fieldset>
               </Form>
-            </div>
-            <div className="card-footer p-4">
-              <div className="text-center">
-                <span>Нет аккаунта?&nbsp;</span>
-                <a href="/signup">Регистрация</a>
-              </div>
             </div>
           </div>
         </div>
@@ -114,4 +124,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default Signup;
