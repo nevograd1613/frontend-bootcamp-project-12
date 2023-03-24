@@ -85,7 +85,7 @@ const ModalForm = ({
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={formik.handleSubmit}>
-          <Form.Group>
+          <Form.Floating>
             <Form.Control
               id="name"
               name="name"
@@ -96,6 +96,7 @@ const ModalForm = ({
               isInvalid={!!formik.errors.name}
               onBlur={formik.handleBlur}
               ref={input}
+              type="text"
             />
             <Form.Label htmlFor="name" className="visually-hidden">
               {t('canalName')}
@@ -111,7 +112,7 @@ const ModalForm = ({
                 {t('send')}
               </Button>
             </div>
-          </Form.Group>
+          </Form.Floating>
         </Form>
       </Modal.Body>
     </>
