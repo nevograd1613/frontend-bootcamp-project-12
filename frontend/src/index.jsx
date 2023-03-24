@@ -9,7 +9,6 @@ import { initReactI18next } from 'react-i18next';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { ToastContainer } from 'react-toastify';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import 'react-toastify/dist/ReactToastify.css';
 import App from './components/App';
 import store from './slices/index.js';
 import resources from './locales/index.js';
@@ -46,8 +45,6 @@ root.render(
             pauseOnHover
             theme="light"
           />
-          {/* Same as */}
-          <ToastContainer />
           <App />
         </Provider>
       </React.StrictMode>
