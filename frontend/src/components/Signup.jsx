@@ -120,7 +120,7 @@ const Signup = () => {
                     <Form.Control.Feedback type="invalid">{formik.errors.passwordConfirm}</Form.Control.Feedback>
                   </Form.Floating>
                   {authFailed ? <div className="invalid-feedback d-block">{t('errors.userExist')}</div> : null}
-                  <Button type="submit" disabled={!!formik.errors.username || !!formik.errors.password || !!formik.errors.passwordConfirm} variant="outline-primary" className="w-100 btn btn-outline-primary">{t('register')}</Button>
+                  <Button type="submit" disabled={!!formik.errors.username || !!formik.errors.password || !!formik.errors.passwordConfirm || authFailed} variant="outline-primary" className="w-100 btn btn-outline-primary">{t('register')}</Button>
                 </fieldset>
               </Form>
             </div>
