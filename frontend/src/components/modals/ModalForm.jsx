@@ -99,7 +99,7 @@ const ModalForm = ({
               type="text"
             />
             <Form.Label htmlFor="name" className="visually-hidden">
-              {t('canalName')}
+              {t('modal.canalName')}
             </Form.Label>
             <Form.Control.Feedback type="invalid">
               {formik.errors.name}
