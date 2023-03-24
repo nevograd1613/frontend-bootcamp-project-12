@@ -70,7 +70,7 @@ const LoginPage = () => {
               <Form onSubmit={formik.handleSubmit} className="col-12 col-md-6 mt-3 mt-mb-0">
                 <h1 className="text-center mb-4">{t('entry')}</h1>
                 <fieldset disabled={formik.isSubmitting}>
-                  <Form.Group>
+                  <Form.Floating>
                     <Form.Control
                       onChange={formik.handleChange}
                       value={formik.values.username}
@@ -83,8 +83,9 @@ const LoginPage = () => {
                       required
                       ref={inputRef}
                     />
-                  </Form.Group>
-                  <Form.Group>
+                    <Form.Label htmlFor="username">{t('placeholders.login')}</Form.Label>
+                  </Form.Floating>
+                  <Form.Floating>
                     <Form.Control
                       type="password"
                       onChange={formik.handleChange}
@@ -97,8 +98,9 @@ const LoginPage = () => {
                       isInvalid={authFailed}
                       required
                     />
+                    <Form.Label htmlFor="password">{t('placeholders.password')}</Form.Label>
                     <Form.Control.Feedback type="invalid">{t('errors.invalidFeedback')}</Form.Control.Feedback>
-                  </Form.Group>
+                  </Form.Floating>
                   <Button type="submit" variant="outline-primary" className="w-100 btn btn-outline-primary">{t('entry')}</Button>
                 </fieldset>
               </Form>

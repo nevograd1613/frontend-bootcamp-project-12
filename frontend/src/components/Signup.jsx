@@ -59,7 +59,6 @@ const Signup = () => {
       }
     },
   });
-  console.log(formik);
   return (
     <div className="container-fluid h-100">
       <div className="row justify-content-center align-content-center h-100">
@@ -72,7 +71,7 @@ const Signup = () => {
               <Form onSubmit={formik.handleSubmit} className="col-12 col-md-6 mt-3 mt-mb-0">
                 <h1 className="text-center mb-4">{t('registration')}</h1>
                 <fieldset disabled={formik.isSubmitting}>
-                  <Form.Group>
+                  <Form.Floating>
                     <Form.Control
                       onChange={formik.handleChange}
                       value={formik.values.username}
@@ -84,10 +83,12 @@ const Signup = () => {
                       isInvalid={!!formik.errors.username}
                       required
                       ref={inputRef}
+                      type="text"
                     />
+                    <Form.Label htmlFor="username">{t('placeholders.username')}</Form.Label>
                     <Form.Control.Feedback type="invalid">{formik.errors.username}</Form.Control.Feedback>
-                  </Form.Group>
-                  <Form.Group>
+                  </Form.Floating>
+                  <Form.Floating>
                     <Form.Control
                       type="password"
                       onChange={formik.handleChange}
@@ -100,9 +101,10 @@ const Signup = () => {
                       isInvalid={!!formik.errors.password}
                       required
                     />
+                    <Form.Label htmlFor="password">{t('placeholders.password')}</Form.Label>
                     <Form.Control.Feedback type="invalid">{formik.errors.password}</Form.Control.Feedback>
-                  </Form.Group>
-                  <Form.Group>
+                  </Form.Floating>
+                  <Form.Floating>
                     <Form.Control
                       type="password"
                       onChange={formik.handleChange}
@@ -114,8 +116,9 @@ const Signup = () => {
                       isInvalid={!!formik.errors.passwordConfirm}
                       required
                     />
+                    <Form.Label htmlFor="passwordConfirm">{t('placeholders.passwordConfirmation')}</Form.Label>
                     <Form.Control.Feedback type="invalid">{formik.errors.passwordConfirm}</Form.Control.Feedback>
-                  </Form.Group>
+                  </Form.Floating>
                   {authFailed ? <div className="invalid-feedback d-block">{t('errors.userExist')}</div> : null}
                   <Button type="submit" disabled={!!formik.errors.username || !!formik.errors.password || !!formik.errors.passwordConfirm} variant="outline-primary" className="w-100 btn btn-outline-primary">{t('register')}</Button>
                 </fieldset>
