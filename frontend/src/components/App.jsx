@@ -7,6 +7,7 @@ import {
   Link,
 } from 'react-router-dom';
 import { Button, Container, Navbar } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import NotFoundPage from './NotFoundPage.jsx';
 import MainPage from './MainPage.jsx';
 import LoginPage from './LoginPage.jsx';
@@ -43,25 +44,24 @@ const PrivateRoute = ({ children }) => {
 
 const AuthButton = () => {
   const auth = useAuth();
-  console.log(auth.loggedIn);
+  const { t } = useTranslation();
 
   return (
     auth.loggedIn
-      ? <Button onClick={auth.logOut}>Выход</Button>
+      ? <Button onClick={auth.logOut}>{t('exit')}</Button>
       : null
   );
 };
 
 const App = () => {
-  const a = '';
-  console.log(a);
+  const { t } = useTranslation();
   return (
     <AuthProvider>
       <Router>
         <Navbar className="shadow-sm" bg="white" expand="lg" variant="white">
           <Container>
             <Navbar.Brand as={Link} to="/">
-              Hexlet Chat
+              {t('name')}
             </Navbar.Brand>
             <AuthButton />
           </Container>

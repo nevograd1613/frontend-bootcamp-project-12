@@ -11,6 +11,9 @@ import {
   Button,
 } from 'react-bootstrap';
 import { io } from 'socket.io-client';
+import { useTranslation } from 'react-i18next';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import filter from 'leo-profanity';
 import routes from '../routes.js';
 import Modals from './modals/Modals.jsx';
 import { actions as channelsActions, selectors as channelsSelectors } from '../slices/chanelsSlice.js';
@@ -30,11 +33,14 @@ const getAuthHeader = () => {
 const socket = io();
 
 const MainPage = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const [activeId, setActiveId] = useState(null);
+  const [sendMessage, setSendMessage] = useState(false);
   const [value, setValue] = useState('');
   const [initialId, setInitialId] = useState('');
   const inpRef = useRef();
+  filter.loadDictionary('ru');
   useEffect(() => {
     inpRef.current.focus();
   }, []);
@@ -80,13 +86,17 @@ const MainPage = () => {
 
   const addNewMessage = (e) => {
     e.preventDefault();
-    socket.emit('newMessage', { body: value, channelId: activeId, username: 'admin' }, (response) => {
-      if (response.status === 'ok') {
-        socket.on('newMessage', (payload) => {
-          dispatch(messagesActions.addMessage(payload));
-        });
-      }
-    });
+    if (value.length > 0) {
+      setSendMessage(true);
+      socket.emit('newMessage', { body: filter.clean(value), channelId: activeId, username: 'admin' }, (response) => {
+        if (response.status === 'ok') {
+          socket.on('newMessage', (payload) => {
+            dispatch(messagesActions.addMessage(payload));
+          });
+        }
+      });
+    }
+    setSendMessage(false);
     setValue('');
   };
 
@@ -96,7 +106,7 @@ const MainPage = () => {
       <Row className="h-100 bg-white flex-md-row">
         <Col className="col-4 col-md-2 border-end px-0 bg-light flex-column h-100 d-flex">
           <div className="d-flex mt-1 justify-content-between mb-2 ps-4 pe-2 p-4">
-            <b>Каналы</b>
+            <b>{t('channelsTitle')}</b>
             <Button
               variant=""
               className="p-0 text-primary btn-group-vertical"
@@ -177,7 +187,7 @@ const MainPage = () => {
                   {` ${activeChannel && activeChannel.name}`}
                 </b>
               </p>
-              <span className="text-muted">3 сообщения</span>
+              <span className="text-muted">{t('messagesCounter.messages', { count: messages.length })}</span>
             </div>
             <div id="messages-box" className="chat-messages overflow-auto px-5 ">
               {messages && messages.map((el) => (
@@ -190,13 +200,13 @@ const MainPage = () => {
             <div className="mt-auto px-5 py-3">
               <form noValidate="" className="py-1 border rounded-2" onSubmit={addNewMessage}>
                 <div className="input-group has-validation">
-                  <input name="body" aria-label="Новое сообщение" placeholder="Введите сообщение..." className="border-0 p-0 ps-2 form-control" ref={inpRef} value={value} onChange={(e) => setValue(e.target.value)} />
-                  <button type="submit" disabled="" className="btn btn-group-vertical">
+                  <input name="body" aria-label={t('newMessage')} placeholder={t('placeholders.newMessage')} className="border-0 p-0 ps-2 form-control" ref={inpRef} value={value} onChange={(e) => setValue(e.target.value)} />
+                  <Button type="submit" disabled={sendMessage} className="btn btn-group-vertical btn-light">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="20" height="20" fill="currentColor">
                       <path fillRule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm4.5 5.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z" />
                     </svg>
-                    <span className="visually-hidden">Отправить</span>
-                  </button>
+                    <span className="visually-hidden">{t('send')}</span>
+                  </Button>
                 </div>
               </form>
             </div>

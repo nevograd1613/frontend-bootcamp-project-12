@@ -4,6 +4,7 @@ import { useFormik } from 'formik';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button, Form } from 'react-bootstrap';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 import useAuth from '../hooks/index.jsx';
 import routes from '../routes.js';
 import Entry from '../assets/Entry.jpeg';
@@ -22,6 +23,7 @@ const SignupSchema = Yup.object().shape({
 });
 
 const LoginPage = () => {
+  const { t } = useTranslation();
   const auth = useAuth();
   const [authFailed, setAuthFailed] = useState(false);
   const inputRef = useRef();
@@ -66,13 +68,13 @@ const LoginPage = () => {
                 <img src={Entry} className="rounded-circle" alt="Войти" />
               </div>
               <Form onSubmit={formik.handleSubmit} className="col-12 col-md-6 mt-3 mt-mb-0">
-                <h1 className="text-center mb-4">Вход</h1>
+                <h1 className="text-center mb-4">{t('entry')}</h1>
                 <fieldset disabled={formik.isSubmitting}>
                   <Form.Group>
                     <Form.Control
                       onChange={formik.handleChange}
                       value={formik.values.username}
-                      placeholder="Ваш ник"
+                      placeholder={t('placeholders.login')}
                       className={authFailed ? 'mb-3 form-control is-invalid' : 'mb-3 form-control'}
                       name="username"
                       id="username"
@@ -87,7 +89,7 @@ const LoginPage = () => {
                       type="password"
                       onChange={formik.handleChange}
                       value={formik.values.password}
-                      placeholder="Пароль"
+                      placeholder={t('placeholders.password')}
                       className={authFailed ? 'mb-3 form-control is-invalid' : 'mb-3 form-control'}
                       name="password"
                       id="password"
@@ -95,16 +97,19 @@ const LoginPage = () => {
                       isInvalid={authFailed}
                       required
                     />
-                    <Form.Control.Feedback type="invalid">the username or password is incorrect</Form.Control.Feedback>
+                    <Form.Control.Feedback type="invalid">{t('errors.invalidFeedback')}</Form.Control.Feedback>
                   </Form.Group>
-                  <Button type="submit" variant="outline-primary" className="w-100 btn btn-outline-primary">Submit</Button>
+                  <Button type="submit" variant="outline-primary" className="w-100 btn btn-outline-primary">{t('entry')}</Button>
                 </fieldset>
               </Form>
             </div>
             <div className="card-footer p-4">
               <div className="text-center">
-                <span>Нет аккаунта?&nbsp;</span>
-                <a href="/signup">Регистрация</a>
+                <span>
+                  {t('noAccount')}
+                  &nbsp;
+                </span>
+                <a href="/signup">{t('registration')}</a>
               </div>
             </div>
           </div>
