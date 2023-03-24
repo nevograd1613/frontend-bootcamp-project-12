@@ -1,8 +1,12 @@
 name: Node
 
 on:
-  - push
-  - pull_request
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
@@ -18,9 +22,8 @@ jobs:
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-
-      - run: make install
-      - run: make build
-      - run: make lint
+          node-version: ${{ matrix.node-version}}
+      - name: Install
+        run: make install
+      - name: Run linter
+        run: make lint-frontend
