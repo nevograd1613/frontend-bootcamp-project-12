@@ -23,7 +23,7 @@ i18n
   });
 
 const rollbarConfig = {
-  accessToken: process.env.env_var,
+  accessToken: process.env.KEY,
   environment: 'testenv',
 };
 
