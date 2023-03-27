@@ -8,6 +8,9 @@ on:
     branches:
       - main
 
+env:
+  env_var: ${{ secrets.KEY }}
+
 jobs:
   build:
 
