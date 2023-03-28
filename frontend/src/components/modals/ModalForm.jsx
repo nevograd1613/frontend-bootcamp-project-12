@@ -1,21 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Modal, Form, Button } from 'react-bootstrap';
 import { useFormik } from 'formik';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import * as Yup from 'yup';
 import { useTranslation } from 'react-i18next';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { toast } from 'react-toastify';
-import { io } from 'socket.io-client';
-import { actions as channelsActions, selectors as channelsSelectors } from '../../slices/chanelsSlice.js';
-
-const socket = io();
+import { selectors as channelsSelectors } from '../../slices/chanelsSlice.js';
+import useSocket from '../../hooks/socketContext.jsx';
 
 const ModalForm = ({
   close, title, setActiveId, added, target,
 }) => {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
+  const sockets = useSocket();
   const [sumbitDisabled, setSubmitDisabled] = useState(false);
   const input = useRef();
   const { channels } = useSelector((state) => {
@@ -49,25 +47,9 @@ const ModalForm = ({
         theme: 'light',
       });
       if (added) {
-        socket.emit('newChannel', { name: values.name }, (response) => {
-          if (response.status === 'ok') {
-            socket.on('newChannel', (payload) => {
-              setActiveId(payload.id);
-              dispatch(channelsActions.addChannel(payload));
-              setSubmitDisabled(false);
-            });
-          }
-        });
+        sockets.addChannel(values, setActiveId, setSubmitDisabled);
       } else {
-        socket.emit('renameChannel', { id: target.id, name: values.name }, (response) => {
-          if (response.status === 'ok') {
-            socket.on('renameChannel', (payload) => {
-              const { id, name } = payload;
-              dispatch(channelsActions.updateChannel({ id, changes: { name } }));
-              setSubmitDisabled(false);
-            });
-          }
-        });
+        sockets.renameChannel(target, values, setSubmitDisabled);
       }
       close();
     },

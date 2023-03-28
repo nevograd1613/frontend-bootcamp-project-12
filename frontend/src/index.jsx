@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import { Provider } from 'react-redux';
 import i18n from 'i18next';
+import { io } from 'socket.io-client';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Provider as RollbarProvider, ErrorBoundary } from '@rollbar/react';
 import { initReactI18next } from 'react-i18next';
@@ -12,6 +13,8 @@ import { ToastContainer } from 'react-toastify';
 import App from './components/App';
 import store from './slices/index.js';
 import resources from './locales/index.js';
+
+const socket = io();
 
 i18n
   .use(initReactI18next)
@@ -45,7 +48,7 @@ root.render(
             pauseOnHover
             theme="light"
           />
-          <App />
+          <App socket={socket} />
         </Provider>
       </React.StrictMode>
     </ErrorBoundary>

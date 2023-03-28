@@ -10,29 +10,20 @@ import {
   ButtonGroup,
   Button,
 } from 'react-bootstrap';
-import { io } from 'socket.io-client';
 import { useTranslation } from 'react-i18next';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import filter from 'leo-profanity';
+import { ArrowRightSquare, PlusSquare } from 'react-bootstrap-icons';
 import routes from '../routes.js';
 import Modals from './modals/Modals.jsx';
 import { actions as channelsActions, selectors as channelsSelectors } from '../slices/chanelsSlice.js';
 import { actions as messagesActions, selectors as messagesSelectors } from '../slices/messagesSlice.js';
 import { actions as modalsActions } from '../slices/modalsSlice.js';
-
-const getAuthHeader = () => {
-  const userId = JSON.parse(localStorage.getItem('userId'));
-
-  if (userId && userId.token) {
-    return { Authorization: `Bearer ${userId.token}` };
-  }
-
-  return {};
-};
-
-const socket = io();
+import useAuth from '../hooks/index.jsx';
+import useSocket from '../hooks/socketContext.jsx';
 
 const MainPage = () => {
+  const auth = useAuth();
+  const sockets = useSocket();
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const [activeId, setActiveId] = useState(null);
@@ -40,7 +31,6 @@ const MainPage = () => {
   const [value, setValue] = useState('');
   const [initialId, setInitialId] = useState('');
   const inpRef = useRef();
-  filter.loadDictionary('ru');
   useEffect(() => {
     inpRef.current.focus();
   }, []);
@@ -54,7 +44,7 @@ const MainPage = () => {
   useEffect(() => {
     const fetchContent = async () => {
       try {
-        const { data } = await axios.get(routes.usersPath(), { headers: getAuthHeader() });
+        const { data } = await axios.get(routes.usersPath(), { headers: auth.getAuthHeader() });
         dispatch(channelsActions.addChannels(data.channels));
         dispatch(messagesActions.addMessages(data.messages));
         setActiveId(data.currentChannelId);
@@ -88,13 +78,8 @@ const MainPage = () => {
     e.preventDefault();
     if (value.length > 0) {
       setSendMessage(true);
-      socket.emit('newMessage', { body: filter.clean(value), channelId: activeId, username: 'admin' }, (response) => {
-        if (response.status === 'ok') {
-          socket.on('newMessage', (payload) => {
-            dispatch(messagesActions.addMessage(payload));
-          });
-        }
-      });
+      const userName = JSON.parse(localStorage.getItem('userId')).username;
+      sockets.addMessage(value, activeId, userName);
     }
     setSendMessage(false);
     setValue('');
@@ -112,16 +97,10 @@ const MainPage = () => {
               className="p-0 text-primary btn-group-vertical"
               onClick={addChannel}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 16 16"
-                width="20"
-                height="20"
-                fill="currentColor"
-              >
-                <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z" />
-                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
-              </svg>
+              <PlusSquare
+                className="bi-plus-square"
+                size={20}
+              />
               <span className="visually-hidden">+</span>
             </Button>
           </div>
@@ -147,14 +126,14 @@ const MainPage = () => {
                       variant={el.id === activeId ? 'secondary' : ''}
                       id="dropdown-split-basic"
                     >
-                      <span className="visually-hidden">Управление каналом</span>
+                      <span className="visually-hidden">{t('modal.toggle')}</span>
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
                       <Dropdown.Item onClick={removeChannel(el)}>
-                        Удалить
+                        {t('modal.remove')}
                       </Dropdown.Item>
                       <Dropdown.Item onClick={renameChannel(el)}>
-                        Переименовать
+                        {t('modal.rename')}
                       </Dropdown.Item>
                     </Dropdown.Menu>
                   </Dropdown>
@@ -202,9 +181,10 @@ const MainPage = () => {
                 <div className="input-group has-validation">
                   <input name="body" aria-label={t('newMessage')} placeholder={t('placeholders.newMessage')} className="border-0 p-0 ps-2 form-control" ref={inpRef} value={value} onChange={(e) => setValue(e.target.value)} />
                   <Button type="submit" disabled={sendMessage} className="btn btn-group-vertical btn-light">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="20" height="20" fill="currentColor">
-                      <path fillRule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm4.5 5.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z" />
-                    </svg>
+                    <ArrowRightSquare
+                      className="bi-plus-square"
+                      size={20}
+                    />
                     <span className="visually-hidden">{t('send')}</span>
                   </Button>
                 </div>

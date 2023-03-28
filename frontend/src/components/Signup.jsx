@@ -46,7 +46,7 @@ const Signup = () => {
         const res = await axios.post(routes.signUpPath(), values);
         localStorage.setItem('userId', JSON.stringify(res.data));
         auth.logIn();
-        const { from } = location.state || { from: { pathname: '/' } };
+        const { from } = location.state || { from: { pathname: routes.mainPagePath() } };
         navigate(from);
       } catch (err) {
         formik.setSubmitting(false);

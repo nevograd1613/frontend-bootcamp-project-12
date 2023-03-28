@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React from 'react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -13,32 +13,15 @@ import MainPage from './MainPage.jsx';
 import LoginPage from './LoginPage.jsx';
 import Signup from './Signup.jsx';
 import useAuth from '../hooks/index.jsx';
-import AuthContext from '../contexts/index.jsx';
-
-const AuthProvider = ({ children }) => {
-  const initialState = Boolean(localStorage.getItem('userData'));
-  const [loggedIn, setLoggedIn] = useState(initialState);
-
-  const logIn = () => setLoggedIn(true);
-  const logOut = () => {
-    localStorage.removeItem('userId');
-    setLoggedIn(false);
-  };
-
-  const memo = useMemo(() => ({ loggedIn, logIn, logOut }), [loggedIn]);
-
-  return (
-    <AuthContext.Provider value={memo}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
+import routes from '../routes.js';
+import AuthProvider from '../contexts/AuthProvider.jsx';
+import SocketProvider from '../contexts/SocketProvider.jsx';
 
 const PrivateRoute = ({ children }) => {
   const auth = useAuth();
 
   return (
-    auth.loggedIn ? children : <Navigate to="/login" />
+    auth.loggedIn ? children : <Navigate to={routes.loginPagePath()} />
   );
 };
 
@@ -53,34 +36,38 @@ const AuthButton = () => {
   );
 };
 
-const App = () => {
+const App = ({ socket }) => {
   const { t } = useTranslation();
   return (
-    <AuthProvider>
-      <Router>
-        <Navbar className="shadow-sm" bg="white" expand="lg" variant="white">
-          <Container>
-            <Navbar.Brand as={Link} to="/">
-              {t('name')}
-            </Navbar.Brand>
-            <AuthButton />
-          </Container>
-        </Navbar>
-        <Routes>
-          <Route path="*" element={<NotFoundPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route
-            path="/"
-            element={(
-              <PrivateRoute>
-                <MainPage />
-              </PrivateRoute>
-            )}
-          />
-        </Routes>
-      </Router>
-    </AuthProvider>
+    <div className="d-flex flex-column h-100">
+      <AuthProvider>
+        <SocketProvider socket={socket}>
+          <Router>
+            <Navbar className="shadow-sm" bg="white" expand="lg" variant="white">
+              <Container>
+                <Navbar.Brand as={Link} to={routes.mainPagePath()}>
+                  {t('name')}
+                </Navbar.Brand>
+                <AuthButton />
+              </Container>
+            </Navbar>
+            <Routes>
+              <Route path={routes.notFoundPath()} element={<NotFoundPage />} />
+              <Route path={routes.loginPagePath()} element={<LoginPage />} />
+              <Route path={routes.signUpPagePath()} element={<Signup />} />
+              <Route
+                path={routes.mainPagePath()}
+                element={(
+                  <PrivateRoute>
+                    <MainPage socket={socket} />
+                  </PrivateRoute>
+                    )}
+              />
+            </Routes>
+          </Router>
+        </SocketProvider>
+      </AuthProvider>
+    </div>
   );
 };
 

@@ -30,6 +30,8 @@ export default {
       unique: 'Должно быть уникальным',
       lengthParams: 'От 3 до 20 символов',
       remove: 'Удалить',
+      toggle: 'Управление каналом',
+      rename: 'Переименовать',
       removeChannel: 'Удалить канал',
       confirm: 'Уверены?',
       canalName: 'Имя канала',
