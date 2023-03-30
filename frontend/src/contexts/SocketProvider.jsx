@@ -72,7 +72,7 @@ const SocketProvider = ({ children, socket }) => {
 
   const memo = useMemo(() => ({
     addMessage, deleteChannel, addChannel, renameChannel,
-  }), [addMessage, deleteChannel, addChannel, renameChannel]);
+  }));
 
   return (
     <SocketContext.Provider value={memo}>
