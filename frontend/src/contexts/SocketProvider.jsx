@@ -15,57 +15,61 @@ const SocketProvider = ({ children, socket }) => {
   const { t } = useTranslation();
 
   const addMessage = (value, activeId, userName) => {
+    socket.on('newMessage', (payload) => {
+      dispatch(messagesActions.addMessage(payload));
+    });
     socket.emit('newMessage', { body: filter.clean(value), channelId: activeId, username: userName }, (response) => {
-      if (response.status === 'ok') {
-        socket.on('newMessage', (payload) => {
-          dispatch(messagesActions.addMessage(payload));
-        });
+      if (response.status !== 'ok') {
+        throw new Error(response.status);
       }
     });
   };
 
   const deleteChannel = (target, setActiveId, initialId, setSubmitDisabled) => {
+    toast.success(t('success.removeChannel'), {
+      position: 'top-right',
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: 'light',
+    });
+    socket.on('removeChannel', (payload) => {
+      dispatch(channelsActions.removeChannel(payload.id));
+      setActiveId(initialId);
+      setSubmitDisabled(false);
+    });
     socket.emit('removeChannel', { id: target.id }, (response) => {
-      if (response.status === 'ok') {
-        toast.success(t('success.removeChannel'), {
-          position: 'top-right',
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: 'light',
-        });
-        socket.on('removeChannel', (payload) => {
-          dispatch(channelsActions.removeChannel(payload.id));
-          setActiveId(initialId);
-          setSubmitDisabled(false);
-        });
+      if (response.status !== 'ok') {
+        throw new Error(response.status);
       }
     });
   };
 
   const addChannel = (values, setActiveId, setSubmitDisabled) => {
+    socket.on('newChannel', (payload) => {
+      setActiveId(payload.id);
+      dispatch(channelsActions.addChannel(payload));
+      setSubmitDisabled(false);
+    });
     socket.emit('newChannel', { name: values.name }, (response) => {
-      if (response.status === 'ok') {
-        socket.on('newChannel', (payload) => {
-          setActiveId(payload.id);
-          dispatch(channelsActions.addChannel(payload));
-          setSubmitDisabled(false);
-        });
+      if (response.status !== 'ok') {
+        throw new Error(response.status);
       }
     });
   };
 
   const renameChannel = (target, values, setSubmitDisabled) => {
+    socket.on('renameChannel', (payload) => {
+      const { id, name } = payload;
+      dispatch(channelsActions.updateChannel({ id, changes: { name } }));
+      setSubmitDisabled(false);
+    });
     socket.emit('renameChannel', { id: target.id, name: values.name }, (response) => {
-      if (response.status === 'ok') {
-        socket.on('renameChannel', (payload) => {
-          const { id, name } = payload;
-          dispatch(channelsActions.updateChannel({ id, changes: { name } }));
-          setSubmitDisabled(false);
-        });
+      if (response.status !== 'ok') {
+        throw new Error(response.status);
       }
     });
   };

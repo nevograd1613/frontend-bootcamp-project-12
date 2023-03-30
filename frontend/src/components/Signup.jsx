@@ -46,7 +46,6 @@ const Signup = () => {
         const res = await axios.post(routes.signUpPath(), {
           username: values.username, password: values.password,
         });
-        console.log(routes.signUpPath());
         localStorage.setItem('userId', JSON.stringify(res.data));
         auth.logIn();
         const { from } = location.state || { from: { pathname: routes.mainPagePath() } };

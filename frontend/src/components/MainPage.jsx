@@ -41,13 +41,25 @@ const MainPage = () => {
     const block = document.getElementById('messages-box');
     block.scrollTop = block.scrollHeight;
   });
+  const { channels } = useSelector((state) => {
+    const allChannels = channelsSelectors.selectAll(state);
+    return { channels: allChannels };
+  });
+  const { messages } = useSelector((state) => {
+    const activeMessages = messagesSelectors.selectAll(state)
+      .filter(({ channelId }) => channelId === activeId);
+    return { messages: activeMessages };
+  });
+  const { activeChannel } = useSelector((state) => {
+    const activeCN = channelsSelectors.selectById(state, activeId);
+    return { activeChannel: activeCN };
+  });
   useEffect(() => {
     const fetchContent = async () => {
       try {
         const { data } = await axios.get(routes.usersPath(), { headers: auth.getAuthHeader() });
         dispatch(channelsActions.addChannels(data.channels));
         dispatch(messagesActions.addMessages(data.messages));
-        setActiveId(data.currentChannelId);
         setInitialId(data.currentChannelId);
       } catch (e) {
         console.log(e);
@@ -55,21 +67,11 @@ const MainPage = () => {
     };
 
     fetchContent();
-  }, []);
+  }, [channels, messages, activeChannel]);
+  useEffect(() => {
+    setActiveId(initialId);
+  }, [initialId]);
 
-  const { channels } = useSelector((state) => {
-    const allChannels = channelsSelectors.selectAll(state);
-    return { channels: allChannels };
-  });
-  const { activeChannel } = useSelector((state) => {
-    const activeCN = channelsSelectors.selectById(state, activeId);
-    return { activeChannel: activeCN };
-  });
-  const { messages } = useSelector((state) => {
-    const activeMessages = messagesSelectors.selectAll(state)
-      .filter(({ channelId }) => channelId === activeId);
-    return { messages: activeMessages };
-  });
   const addChannel = () => dispatch(modalsActions.openModal({ type: 'adding' }));
   const renameChannel = ({ id, name }) => () => dispatch(modalsActions.openModal({ type: 'renaming', target: { id, name } }));
   const removeChannel = ({ id }) => () => dispatch(modalsActions.openModal({ type: 'removing', target: { id } }));
