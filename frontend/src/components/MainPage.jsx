@@ -54,6 +54,9 @@ const MainPage = () => {
     const activeCN = channelsSelectors.selectById(state, activeId);
     return { activeChannel: activeCN };
   });
+  const addChannel = () => dispatch(modalsActions.openModal({ type: 'adding' }));
+  const renameChannel = ({ id, name }) => () => dispatch(modalsActions.openModal({ type: 'renaming', target: { id, name } }));
+  const removeChannel = ({ id }) => () => dispatch(modalsActions.openModal({ type: 'removing', target: { id } }));
   useEffect(() => {
     const fetchContent = async () => {
       try {
@@ -63,18 +66,16 @@ const MainPage = () => {
         setInitialId(data.currentChannelId);
       } catch (e) {
         console.log(e);
+        if (e.response.status === 401) {
+          auth.logOut();
+        }
       }
     };
-
     fetchContent();
-  }, [channels, messages, activeChannel]);
+  }, [addChannel, renameChannel, removeChannel, channels, messages, activeChannel]);
   useEffect(() => {
     setActiveId(initialId);
   }, [initialId]);
-
-  const addChannel = () => dispatch(modalsActions.openModal({ type: 'adding' }));
-  const renameChannel = ({ id, name }) => () => dispatch(modalsActions.openModal({ type: 'renaming', target: { id, name } }));
-  const removeChannel = ({ id }) => () => dispatch(modalsActions.openModal({ type: 'removing', target: { id } }));
 
   const addNewMessage = (e) => {
     e.preventDefault();
