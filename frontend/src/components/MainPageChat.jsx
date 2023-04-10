@@ -45,6 +45,7 @@ const MainPageChat = () => {
     return { activeChannel: activeCN };
   });
   filter.loadDictionary('ru');
+  filter.loadDictionary('en');
 
   const addNewMessage = async (e) => {
     try {
