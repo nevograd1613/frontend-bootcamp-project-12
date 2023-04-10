@@ -21,8 +21,10 @@ const AuthProvider = ({ children }) => {
     return {};
   };
 
+  const userName = () => JSON.parse(localStorage.getItem('userId')).username;
+
   const memo = useMemo(() => ({
-    loggedIn, logIn, logOut, getAuthHeader,
+    loggedIn, logIn, logOut, getAuthHeader, userName,
   }), [loggedIn]);
 
   return (

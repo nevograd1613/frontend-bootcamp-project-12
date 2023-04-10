@@ -36,12 +36,12 @@ const AuthButton = () => {
   );
 };
 
-const App = ({ socket }) => {
+const App = ({ chatApi }) => {
   const { t } = useTranslation();
   return (
     <div className="d-flex flex-column h-100">
       <AuthProvider>
-        <SocketProvider socket={socket}>
+        <SocketProvider chatApi={chatApi}>
           <Router>
             <Navbar className="shadow-sm" bg="white" expand="lg" variant="white">
               <Container>
@@ -59,7 +59,7 @@ const App = ({ socket }) => {
                 path={routes.mainPagePath()}
                 element={(
                   <PrivateRoute>
-                    <MainPage socket={socket} />
+                    <MainPage />
                   </PrivateRoute>
                     )}
               />

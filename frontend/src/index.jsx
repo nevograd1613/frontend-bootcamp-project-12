@@ -48,7 +48,7 @@ root.render(
             pauseOnHover
             theme="light"
           />
-          <App socket={socket} />
+          <App chatApi={socket} />
         </Provider>
       </React.StrictMode>
     </ErrorBoundary>

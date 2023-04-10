@@ -12,9 +12,9 @@ const modalComponents = {
   removing: Remove,
 };
 
-const Modals = ({ setActiveId, initialId }) => {
+const Modals = () => {
   const dispatch = useDispatch();
-  const { isOpened, type, target } = useSelector(getModalState);
+  const { isOpened, type, channelId } = useSelector(getModalState);
   const ModalComponent = modalComponents[type];
   const close = () => dispatch(modalsActions.closeModal());
   return (
@@ -25,10 +25,8 @@ const Modals = ({ setActiveId, initialId }) => {
     >
       {isOpened && (
       <ModalComponent
-        target={target}
+        channelId={channelId}
         close={close}
-        setActiveId={setActiveId}
-        initialId={initialId}
       />
       )}
     </Modal>

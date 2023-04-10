@@ -1,18 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import useSocket from '../../hooks/socketContext.jsx';
 
 const Remove = ({
-  close, target, setActiveId, initialId,
+  close, channelId,
 }) => {
   const { t } = useTranslation();
   const sockets = useSocket();
-  const [submitDisabled, setSubmitDisabled] = useState(false);
 
   const remove = () => {
-    setSubmitDisabled(true);
-    sockets.deleteChannel(target, setActiveId, initialId, setSubmitDisabled);
+    sockets.deleteChannel(channelId);
     close();
   };
 
@@ -27,7 +25,7 @@ const Remove = ({
           <Button className="me-2" variant="secondary" onClick={close}>
             {t('cancel')}
           </Button>
-          <Button variant="danger" type="button" onClick={remove} disabled={submitDisabled}>
+          <Button variant="danger" type="button" onClick={remove}>
             {t('modal.remove')}
           </Button>
         </div>
